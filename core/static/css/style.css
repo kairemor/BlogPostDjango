@@ -1,0 +1,101 @@
+/* .head {
+    height: 600px    ;
+    width: 100% ;
+    display: block ; 
+    position: relative;
+    margin-bottom: 100px ; 
+    animation : couleur 10s infinite ;
+    position : relative ;
+}
+@keyframes couleur {
+    0%{background-color :rgba(39, 104, 201,0.6)}
+    25%{background-color :rgba(60, 175, 240 ,0.6); }
+    50%{background-color : rgba(12, 140, 245 ,0.6) }
+    75%{background-color : rgba(54, 162, 250, 0.6) }
+    100%{background-color : rgba(70, 104, 187, 0.6)}
+}	
+.head::after {
+    content: "";
+    background: url('../image/accueil1.jpg');
+    height: 100%;
+    opacity: 0.5;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    position: absolute;
+    z-index: -1;   
+  } */
+
+.form-control-borderless {
+    border: none;
+}
+
+.form-control-borderless:hover,
+.form-control-borderless:active,
+.form-control-borderless:focus {
+    border: none;
+    outline: none;
+    box-shadow: none;
+}
+
+.post-create {
+    align-content: center;
+    padding: 5px;
+}
+
+.emotion {
+    align-content: center;
+    text-align: center;
+
+}
+
+.image_profile {
+    width: 250px;
+    height: 250px;
+}
+
+.comment {
+    width: 50%;
+    height: 50px;
+    padding: 2px;
+}
+
+.comment span {
+    font-size: 15px;
+    font-family: 'Courier New', Courier, monospace;
+}
+.thumbnail {
+    padding:0px;
+    border-radius: 100%;
+}
+.panel {
+	position:relative;
+}
+.panel>.panel-heading:after,.panel>.panel-heading:before{
+	position:absolute;
+	top:11px;left:-16px;
+	right:100%;
+	width:0;
+	height:0;
+	display:block;
+	content:" ";
+	border-color:transparent;
+	border-style:solid solid outset;
+	pointer-events:none;
+}
+.panel>.panel-heading:after{
+	border-width:7px;
+	border-right-color:#f7f7f7;
+	margin-top:1px;
+	margin-left:2px;
+}
+.panel>.panel-heading:before{
+	border-right-color:#ddd;
+	border-width:8px;
+}
+.user-photo{
+    border-radius: 100%;
+    width: 50%; 
+    height: 50%;
+}

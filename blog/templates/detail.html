@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+{% block title %}
+{{ post.title }} : Medium Senegal
+{% endblock title %}
+{% block comment %}
+<link href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<link href="{% static 'css/style.css' %}" rel="stylesheet">
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+{% endblock comment %}
+
+{% block header %}
+{% if post.image %}
+<header class="masthead" style="background-image: url({{ post.image.url }})">
+  {% else %}
+  <header class="masthead" style="background-image: url('/media/image/about-bg.jpg')">
+    {% endif %}
+    <div class="overlay"></div>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-8 col-md-10 mx-auto">
+          <div class="site-heading">
+            <h1>{{ post.title }}</h1>
+            <span class="subheading">{{ post.subtitle }}</span>
+            <p class="post-meta">
+              Ecrit par
+              <a href="{% url 'profile' post.user.username %}">{{ post.user.username }}</a> le
+              <span>
+                <i class="fa fa-calendar" aria-hidden="true"></i>
+                {% language 'fr' %} {{ post.creation_date }} {% endlanguage %}
+              </span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+  {% endblock header %}
+  {% block content %}
+  {% if delete == 'error' %}
+  <div class="alert alert-warning alert-dismissible fade show" role="alert">
+    <strong>Vous ne pouvez pas supprimer cette annonce</strong>.
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  {% endif %}
+  <article>
+    <div class="row">
+      <div class="col-lg-8 col-md-10 mx-auto">
+        <p>{{ post.content }}</p>
+      </div>
+    </div>
+    <div class="container" align="center">
+      <div id="like_section">
+        {% include 'post/like_section.html' %}
+      </div>{{ post.views_number }}
+      <i class="fas fa-eye"></i>
+    </div>
+  </article>
+  <hr />
+
+  {% if user.username == post.user.username %}
+  <div align="center" class="editing">
+    <a href="{% url 'blog:update' post.pk %}#update_post" class="btn btn-primary mx-auto">
+      Modifier le post</a>
+    <button type="button" class="btn btn-danger mx-auto mt-2" data-toggle="modal" data-target="#exampleModal">
+      Supprimer
+    </button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Confirmer la suppression</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            Supprimer la publication de titre : <strong>{{post.title}}</strong>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-success" data-dismiss="modal">
+              Annuler
+            </button>
+            <a href="{% url 'blog:delete' post.pk %}" type="button" class="btn btn-danger">Confirmer</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <hr />
+  {% endif %} {% if update %}
+  <div id="update_post" class="post-create">
+    <div class="row justify-content-center">
+      <div class="row mb-5">
+        <form class="form" action="{% url 'blog:update_confirm' post.pk %}" method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="hidden" name="id" value=".$post->_id." />
+          <input class="form-control mb-2" type="text" name="title" placeholder="Titre de votre annonce"
+            value="'{{ post.title }}" />
+          <input class="form-control mb-2 " type="text" name="subtitle" placeholder="Sous titre de votre annonce"
+            value="{{ post.subtitle }}" />
+          <textarea class="form-control mb-2" name="content" id="content" cols="50" rows="2"
+            placeholder="Contenu  de votre annonce">
+ {{ post.content }}</textarea>
+          <input class="form-inline mb-2" type="file" name="image" id="image " />
+          <input class="btn btn-success btn-block" type="submit" name="update_post" value="Modifier" />
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+  <div class="row" class="comment_field">
+    <div class="col-md-6" class="add_comment mb-5">
+      <form class="form" action="{% url 'blog:comment' post.pk %}" method="POST">
+        {% csrf_token %}
+        <input class="form-inline" type="text" name='comment' placeholder="Entrer votre commentaire">
+        <input class="btn btn-success" type="submit" name="setComment" value="Commenter">
+      </form>
+      <div class="container">
+        {% for comment in comments %}
+        <div class="row">
+          <div class="col-sm-3 col-xs-4">
+            <div class="thumbnail">
+              {% if comment.user.userprofile.image.url %}
+              <img class="img-fluid user-photo" src="{{ comment.user.userprofile.image.url}}">
+              {% else %}
+              <img class="img-fluid user-photo" src="/media/galsen_medium.png">
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="col-sm-9 col-xs-8">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <strong>{{ comment.user.username }}</strong> <span class="text-muted">{% language 'fr' %}
+                  {{ post.creation_date }} {% endlanguage %}</span>
+              </div>
+              <div class="panel-body">
+                {{ comment.comment }}
+              </div>
+              <form class="form" action="{% url 'blog:comment' post.pk %}" method="POST">
+                {% csrf_token %}
+                <input class="form-inline" type="text" name='comment' placeholder="Entrer votre reponse">
+                <input type="text" hidden value="{{ comment.id }}">
+                <input class="btn btn-success" type="submit" name="setComment" value="Reponse">
+              </form>
+              {% if comment.sub_comment.count > 0 %}
+
+              <div class="card body ml-5">
+                {% for subcomment in comment.sub_comment.all %}
+                {{ subcomment.user.username }} : {{ subcomment.comment }}
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div><!-- /container -->
+    </div>
+    <div class="otherpost col-md-6">
+      <h3>Dernieres publications</h3>
+      <hr>
+      {% for post in posts %}
+      <a href="{% url 'blog:detail' post.pk %}">
+        <div class="media">
+          {% if post.image %}
+          <img class="mr-3" width="100" height="100" src="{{ post.image.url }}" alt="Generic placeholder image">
+          {% else %}
+          <img class="mr-3" width="100" height="100" src="/media/image/about-bg.jpg" alt="Generic placeholder image">
+          {% endif %}
+          <div class="media-body">
+            <h5 class="mt-0">{{ post.title }}</h5>
+            {{ post.subtitle }}
+          </div>
+        </div>
+      </a>
+      <hr>
+      {% endfor %}
+    </div>
+  </div>
+  {% endblock content %}
+
+
+  {% block javascript %}
+  <script>
+    $(document).on('click', "#like", function (e) {
+      e.preventDefault();
+      var pk = $(this).data('value');
+      var like_section = $('#like_section');
+      $.ajax({
+        type: 'POST',
+        url: '{% url "blog:like_post" %}',
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        data: {
+          'id': pk
+        },
+        dataType: 'json',
+        success: function (response) {
+          like_section.html(response['form'])
+        },
+        error: function (rs, e) {
+          alert("Une erreur est survenue");
+          console.log(rs.responseText)
+        }
+      });
+    })
+  </script>
+  {% endblock javascript %}

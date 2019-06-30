@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}
+    {{ user.username }} - Galsen Medium 
+{% endblock %}
+
+
+{% block header %}
+<header class="masthead" style="background-image: url({{profile.image.url}})">
+        <div class="overlay"></div>
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-8 col-md-10 mx-auto">
+              <div class="site-heading">
+                  {% if user.username == profile.user.username %}
+                      <h1>{{ user.username }}</h1>
+                      <span class="subheading">Vous etes dans votre page de profile</span>
+                      {% else %}
+                      
+                      <span class="subheading">Vous etes dans la page de profile de <strong>{{ profile.user.username }}</strong></span>
+                  {% endif %}
+              </div>
+    
+            </div>
+          </div>
+        </div>
+      </header>
+{% endblock header %}
+    
+{% block content %}
+<div class="row">
+    <div class="col-md-6 container">
+        {% if user == profile.user %}
+        <h2> Vos Publications </h2>
+        {% else %}
+        <h2> Les Publications  de {{profile.username}}</h2>
+        {% endif %}
+        <hr>
+        {% for post in posts %}
+      <a href="{% url 'blog:detail' post.pk %}">
+      <div class="media">
+          {% if post.image %}
+          <img class="mr-3" width="100" height="100" src="{{ post.image.url }}" alt="Generic placeholder image">
+          {% else %}
+          <img class="mr-3" width="100" height="100" src="/media/image/about-bg.jpg" alt="Generic placeholder image">
+          {% endif %}
+          <div class="media-body">
+            <h5 class="mt-0">{{ post.title }}</h5>
+            {{ post.subtitle }}
+          </div>
+        </div>
+      </a>
+      <hr>
+      {% endfor %}
+    </div>
+    <div class="col-md-6">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p>Prenom :{{ profile.fname }}</p>
+                    <p>Nom : {{ profile.lname }}</p>
+                    <p>Email :{{ profile.email }}</p>
+                    <p>Phone :{{ profile.phone }}</p>
+                </div>
+                <div class="col-md-6 image_profile  mt-4">
+                    {% if profile.image.url %}
+                        <img class="img-circle" width="200" height="225" src="{{ profile.image.url }}" alt="Pas de photo profile">
+                      {% else %}
+                      <img class="img-circle" width="200" height="225" src="../static/image/about-bg.jpg" alt="Pas de photo profile">
+                    {% endif %}
+                </div>
+            </div>
+            {% if user.username == profile.user.username %}
+            <a class="btn btn-success" href="{% url 'update_profile' %}">modifier votre profile</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock  %}

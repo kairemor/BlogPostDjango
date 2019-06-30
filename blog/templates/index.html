@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}
+Bienvenue : Medium Senegal
+{% endblock title %}
+
+{% block content %}
+<div class="row">
+    <div id="main_content" class="col-lg-10 col-md-10 mx-auto">
+        {% if error %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <span> <strong> {{ error }}.</strong></span>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% endif %}
+        {% if delete == 'ok' %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Publication supprimer avec succes</strong>.
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        {% endif %}
+        <div class="container mx-auto mb-2">
+            <div class="row">
+                <div class="col-6 col-md-6 col-lg-6">
+                    <form class="card card-sm">
+                        <div class="card-body row no-gutters align-items-center">
+                            <div class="col-auto">
+                                <i class="fas fa-search h4 text-body"></i>
+                            </div>
+
+                            <div class="col">
+                                <input class="form-control form-control-lg form-control-borderless" type="search"
+                                    id="search" placeholder="Entrer le titre a rechercher ">
+                            </div>
+
+                            <div class="col-auto">
+                                <button class="btn btn-lg btn-success" type="submit">Search</button>
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+        {% if user.is_authenticated %}
+        <div class="card card-body">
+            <div class="post-create">
+                <div class="row justify-content-center">
+                    <div class="row mb-5">
+                        <form class="form" action="{% url 'blog:create' %}" method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <input class="form-control mb-2" type="text" required name="title"
+                                placeholder="Titre de votre annonce">
+                            <input class="form-control mb-2 " type="text" required name="subtitle"
+                                placeholder="Sous titre de votre annonce">
+                            <textarea class="form-control mb-2" name="content" required id="content" cols="50" rows="2"
+                                placeholder="Contenu  de votre annonce"></textarea>
+                            <input class="form-inline mb-2" type="file" name="image" id="image ">
+                            <input class="btn btn-success btn-block" type="submit" name="submit" value="Publier">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr>
+        {% endif %}
+
+        <div id="content_princ">
+            {% for post in posts %}
+            <div class="row">
+                <div class="col-9">
+                    <div class="post-preview">
+                        <a href="{% url 'blog:detail' post.pk %}">
+                            <h2 class="post-title">
+                                {{post.title}}
+                            </h2>
+                            <h3 class="post-subtitle">
+                                {{post.subtitle}}
+                            </h3>
+                        </a>
+                        <p class="post-meta">Ecrit par
+                            <a href="{% url 'profile' post.user.username %}"> {{post.user.username}}</a>
+                            le
+                            <span><i class="fa fa-calendar" aria-hidden="true"></i> {% language 'fr' %}
+                                {{ post.creation_date }} {% endlanguage %}</span></p>
+                    </div>
+                </div>
+                <div class="col-3">
+                    {% if post.image %}
+                    <img width="150" height="150" class="mx-auto justify-content-center mt-2 "
+                        src="{{ post.image.url }}" alt="pas d'image">
+                    {% else %}
+                    <img width="150" height="150" class="mx-auto justify-content-center mt-2 "
+                        src="/media/image/about-bg.jpg" alt="pas d'image">
+                    {% endif %}
+                </div>
+            </div>
+            <hr>
+            {% endfor %}
+        </div>
+        <!-- Pager -->
+        <div class="clearfix">
+            <a class="btn btn-primary float-right" href="#">Older Posts &rarr;</a>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock content %}
+
+{% block javascript %}
+<script>
+    const search = document.getElementById('search');
+    var content = document.getElementById('content_princ');
+    const getPost = async text => {
+        const result = await fetch('http://localhost:8000/api/')
+        const results = await result.json()
+
+        let datas = results.filter(data => {
+            const regex = new RegExp(`^${text}`, 'gi')
+            return data.title.match(regex) || data.title.match(regex)
+        })
+
+        console.log(datas);
+        toHtml(datas);
+    }
+    const toHtml = datas => {
+        if (datas.length > 0) {
+            var html1 = ''
+            for (let i = 0; i < datas.length; i++) {
+                html1 += `<div class="post-preview">
+                      <a href="http://localhost:8000/detail/${datas[i].id}">
+                          <h2 class="post-title">
+                            ${datas[i].title}
+                          </h2>
+                          <h3 class="post-subtitle">
+                            ${datas[i].subtitle}
+                          </h3>
+                          </a>
+                            <p class="post-meta">Ecrit par
+                              <a href="profile.php?user=${datas[i].user}">
+                                ${datas[i].user}
+                              </a>
+                              le ${datas[i].creation_date}
+                            </p>
+                  </div>
+                  <hr>`
+            }
+
+            content.innerHTML = html1;
+        } else {
+            content.innerHTML = ''
+        }
+    }
+
+    search.addEventListener('input', () => getPost(search.value))
+</script>
+{% endblock javascript %}
